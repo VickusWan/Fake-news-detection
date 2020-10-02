@@ -8,28 +8,45 @@ Created on Fri Oct  2 01:35:27 2020
 import re
 import nltk
 from nltk.corpus import stopwords  
-from nltk.stem import PorterStemmer 
+nltk.download('stopwords')
+stop = set(stopwords.words('english')) 
 
-
-def preprocessor_text(df_text):
+def normalize(df_text):
     temp =[]
-    snow = nltk.stem.SnowballStemmer('english')
+    
+    #snow = nltk.stem.SnowballStemmer('english')
     for sentence in df_text:
         sentence = sentence.lower()                 # Converting to lowercase
-        cleanr = re.compile('<.*?>')
-        sentence = re.sub(cleanr, ' ', sentence)        #Removing HTML tags
-        sentence = re.sub(r'[?|!|\'|"|#]',r'',sentence)
-        sentence = re.sub(r'[.|,|)|(|\|/]',r' ',sentence)        #Removing Punctuations
+        sentence = re.sub(r'<.*?>', ' ', sentence)        #Removing HTML tags
+        sentence = re.sub(r'[?|!|\'|"|#]',r'',sentence)     #Removing Punctuations (? ! ' " #)
+        sentence = re.sub(r'[.|,|)|(|\|/]',r' ',sentence)        #Removing Punctuations (. , ) ( / \)
         
-        words = [snow.stem(word) for word in sentence.split() if word not in stopwords.words('english')]   # Stemming and removing stopwords
+        
+        words = stem(sentence)
+# =============================================================================
+#         words = []
+#         for word in sentence.split():
+#             if word not in stopwords.words('english'):
+#                 words.append(snow.stem(word))
+# =============================================================================
+        
+        #words = [snow.stem(word) for word in sentence.split() if word not in stopwords.words('english')]   # Stemming and removing stopwords
+
         temp.append(words)
-        
     final_X = temp 
     
-    sent = []
+    txt = []
     for row in final_X:
-        sequ = ''
+        seq = ''
         for word in row:
-            sequ = sequ + ' ' + word
-        sent.append(sequ)
-    return sent
+            seq = seq + ' ' + word
+        txt.append(seq)
+    return txt
+
+def stem(sentence):
+    snow = nltk.stem.SnowballStemmer('english')
+    words = []
+    for word in sentence.split():
+        if word not in stopwords.words('english'):
+            words.append(snow.stem(word))
+    return words
